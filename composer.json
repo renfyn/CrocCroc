@@ -1,11 +1,29 @@
 {
+    "name": "renfyn/CrocCroc",
+    "type": "library",
+    "description": "CrocCroc Core Application",
+    "keywords": [],
+    "license": "GNU V3",
+    "authors": [
+        {
+            "name": "Christophe GARCIA",
+            "email": "chris94400@gmail.com",
+            "homepage": "http://php-christophe-garcia.com"
+        },
+    ],
+    "require": {
+        "php": ">=7.0.0"
+    },
     "require-dev": {
         "phpunit/phpunit": "4.3.*",
         "mikey179/vfsStream": "1.4.*"
     },
     "autoload": {
-        "classmap": [
-            "src/"
-        ]
+            "psr-0": {
+                "CrocCroc" : "src/",
+                "Interop" : "src/",
+                "Psr"     : "src/"
+            }
+
     }
 }

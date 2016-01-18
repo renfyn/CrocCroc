@@ -18,7 +18,7 @@
          strict="true"
          verbose="true">
     <testsuites>
-        <testsuite name="Application">
+        <testsuite name="CrocoCore">
             <directory>./CrocCrocTest</directory>
         </testsuite>
     </testsuites>
