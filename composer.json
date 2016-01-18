@@ -9,7 +9,7 @@
             "name": "Christophe GARCIA",
             "email": "chris94400@gmail.com",
             "homepage": "http://php-christophe-garcia.com"
-        },
+        }
     ],
     "require": {
         "php": ">=7.0.0"
