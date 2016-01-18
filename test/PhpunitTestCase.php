@@ -95,5 +95,10 @@ class PhpunitTestCase extends \PHPUnit_Framework_TestCase
         }
         return $mockAdapter;
     }
+
+    public function tearDown()
+    {
+        $this->instance = null;
+    }
     
 }

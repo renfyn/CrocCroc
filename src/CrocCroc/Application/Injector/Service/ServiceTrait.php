@@ -26,7 +26,7 @@ trait ServiceTrait {
      * @param ContainerInterface $injector
      * @return ServiceInterface $this
      */
-    public function setInjector(ContainerInterface $injector): ServiceInterface {
+    public function setInjector(ContainerInterface $injector) {
         $this->injector = $injector;
         return $this;
     }
