@@ -9,9 +9,12 @@
 namespace CrocCroc\Application\Event;
 
 use CrocCroc\Application\Event\Base\MediatorInterface;
+use CrocCroc\Application\Injector\Service\ServiceInterface;
+use CrocCroc\Application\Injector\Service\ServiceTrait;
 
-class Mediator implements MediatorInterface {
+class Mediator implements MediatorInterface, ServiceInterface {
 
+    use ServiceTrait;
     /**
      * @var array
      */
@@ -22,6 +25,10 @@ class Mediator implements MediatorInterface {
      * @var string
      */
     protected $eventClassName;
+
+    public function delegateConstructor()
+    {
+    }
 
     /**
      * add a callback to event store
@@ -77,7 +84,26 @@ class Mediator implements MediatorInterface {
      */
     public function emit(string $eventName, array $data = array())
     {
-        // TODO: Implement emit() method.
+        if(array_key_exists($eventName , $this->events)) {
+            /**
+             * @var \CrocCroc\Application\Event\Event $eventValue
+             */
+            $eventValue = $this->getInjector()->get('CrocCroc\Application\Event\Event');
+
+            foreach($this->events[$eventName] as $index => $listener) {
+
+                $eventValue->setData($data)->setEventName($eventName);
+                $unique   = ($listener[1]);
+                $callBack = ($listener[0]);
+                $callBack($eventValue);
+                if($unique) {
+                    unset($this->events[$eventName][$index]);
+                }
+            }
+
+        }
+
+        return $this;
     }
 
 

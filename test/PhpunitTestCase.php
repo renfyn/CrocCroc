@@ -96,6 +96,19 @@ class PhpunitTestCase extends \PHPUnit_Framework_TestCase
         return $mockAdapter;
     }
 
+    protected function setMockInjector($className , $classMock) {
+
+        $mock = $this->getMock('CrocCroc\Application\Injector\Base\ContainerInterface' , ['get' , 'has', 'unStoredNextObject']);
+
+        $mock->expects($this->once())
+                    ->method('get')
+                    ->with($className)
+                    ->willReturn($classMock);
+
+        return $mock;
+
+    }
+
     public function tearDown()
     {
         $this->instance = null;

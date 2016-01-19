@@ -116,4 +116,50 @@ class MediatorTest extends \PhpunitTestCase
 
     }
 
+
+
+    public function testEmit() {
+
+        $mockEvent = $this->getMock('CrocCroc\Application\Event\Event' , ['setData' , 'setEventName']);
+
+        $fixtureData = ['data' => new \stdClass()];
+        $fixtureEventName = 'eventTest';
+
+        $mockEvent->expects($this->exactly(2))
+                    ->method('setData')
+                    ->with($fixtureData)
+                    ->willReturn($mockEvent);
+
+        $mockEvent->expects($this->exactly(2))
+            ->method('setEventName')
+            ->with($fixtureEventName)
+            ->willReturn($mockEvent);
+
+        $injector = $this->setMockInjector('CrocCroc\Application\Event\Event' , $mockEvent);
+
+        $mockListener = $this->getMock('stdClass' , ['event','event2'] );
+
+        $mockListener->expects($this->once())->method('event')->with($mockEvent)->willReturn(true);
+        $mockListener->expects($this->once())->method('event2')->with($mockEvent)->willReturn(true);
+
+        $event1 = [[$mockListener , 'event' ] , false];
+        $event2 = [[$mockListener , 'event2' ] , true];
+
+        $fixtureEvent = [
+            'eventTest' =>
+                [
+                    $event1,$event2
+                ],
+        ];
+        $this->setInaccessiblePropertyValue('injector' , $injector);
+        $this->setInaccessiblePropertyValue('events' , $fixtureEvent);
+
+        $this->assertSame($this->instance , $this->instance->emit($fixtureEventName , $fixtureData));
+
+        $events =  $this->getInaccessiblePropertyValue('events');
+
+        $this->assertSame([$event1] , $events['eventTest']);
+
+    }
+
 }

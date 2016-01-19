@@ -20,6 +20,6 @@ interface ContainerInterface extends PsrContainerInterface {
      *
      * @return ContainerInterface $this
      */
-    public function unStoredNextObject(): ContainerInterface ;
+    public function unStoredNextObject();
 
 }

@@ -18,13 +18,13 @@ interface ServiceInterface {
     /**
      * @return ContainerInterface
      */
-    public function getInjector(): ContainerInterface;
+    public function getInjector();
 
     /**
      * @param ContainerInterface $injector
      * @return ServiceInterface $this
      */
-    public function setInjector(ContainerInterface $injector): ServiceInterface;
+    public function setInjector(ContainerInterface $injector);
 
     /**
      *
