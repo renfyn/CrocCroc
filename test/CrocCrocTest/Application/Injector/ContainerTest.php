@@ -186,12 +186,5 @@ class ContainerTest extends \PhpunitTestCase
 
     }
 
-    /**
-     * tear down
-     */
-    public function tearDown()
-    {
-        $this->instance = null;
-    }
 
 }

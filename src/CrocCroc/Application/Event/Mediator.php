@@ -28,6 +28,7 @@ class Mediator implements MediatorInterface, ServiceInterface {
 
     public function delegateConstructor()
     {
+        return $this;
     }
 
     /**

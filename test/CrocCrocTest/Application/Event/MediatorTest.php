@@ -23,6 +23,11 @@ class MediatorTest extends \PhpunitTestCase
         $this->instance = new Mediator();
     }
 
+
+    public function testDelegateConstructor() {
+        $this->assertSame($this->instance , $this->instance->delegateConstructor());
+    }
+
     /**
      * test on method
      */
