@@ -8,7 +8,7 @@
 
 namespace CrocCroc\Application\Base;
 use CrocCroc\Config\Base\ConfigInterface;
-use CrocCroc\Injector\Base\InjectorInterface;
+use CrocCroc\Application\Injector\Base\ContainerInterface;
 
 /**
  * Interface ApplicationInterface
@@ -48,15 +48,15 @@ interface ApplicationInterface {
     public function setManager(ManagerInterface $manager): ApplicationInterface ;
 
     /**
-     * @param InjectorInterface $injector
+     * @param ContainerInterface $injector
      * @return ApplicationInterface $this
      */
-    public function setDefaultInjector(InjectorInterface $injector): ApplicationInterface;
+    public function setDefaultInjector(ContainerInterface $injector): ApplicationInterface;
 
     /**
-     * @return InjectorInterface
+     * @return ContainerInterface
      */
-    public function getDefaultInjector(): InjectorInterface;
+    public function getDefaultInjector(): ContainerInterface;
 
     /**
      * @return void
