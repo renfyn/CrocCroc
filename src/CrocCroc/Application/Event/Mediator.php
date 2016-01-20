@@ -37,17 +37,18 @@ class Mediator implements MediatorInterface, ServiceInterface {
      * @param string $eventName
      * @param callable $callBack
      * @param bool $unique
+     * @param int $priority
      * @return $this
      */
-    protected function addEvent(string $eventName, callable $callBack , bool $unique = false) {
+    protected function addEvent(string $eventName, callable $callBack , bool $unique = false , int $priority = 0) {
         $newEvent = [
             $callBack , $unique
         ];
 
         if(array_key_exists($eventName , $this->events)) {
-            $this->events[$eventName][] = $newEvent;
+            $this->events[$eventName][$priority] = $newEvent;
         } else {
-            $this->events[$eventName] = [$newEvent];
+            $this->events[$eventName] = [$priority => $newEvent];
         }
         return $this;
     }
@@ -57,11 +58,12 @@ class Mediator implements MediatorInterface, ServiceInterface {
      *
      * @param string $eventName
      * @param callable $callBack
+     * @param int $priority
      * @return Mediator $this
      */
-    public function on(string $eventName, callable $callBack)
+    public function on(string $eventName, callable $callBack , int $priority = 0)
     {
-        return $this->addEvent($eventName , $callBack , false);
+        return $this->addEvent($eventName , $callBack , false , $priority);
     }
 
     /**
@@ -69,11 +71,12 @@ class Mediator implements MediatorInterface, ServiceInterface {
      *
      * @param string $eventName
      * @param callable $callBack
+     * @param int $priority
      * @return Mediator $this
      */
-    public function once(string $eventName, callable $callBack)
+    public function once(string $eventName, callable $callBack , int $priority = 0)
     {
-        return $this->addEvent($eventName , $callBack , true);
+        return $this->addEvent($eventName , $callBack , true , $priority);
     }
 
     /**
@@ -90,7 +93,7 @@ class Mediator implements MediatorInterface, ServiceInterface {
              * @var \CrocCroc\Application\Event\Event $eventValue
              */
             $eventValue = $this->getInjector()->get('CrocCroc\Application\Event\Event');
-
+            ksort($this->events[$eventName] , SORT_NUMERIC);
             foreach($this->events[$eventName] as $index => $listener) {
 
                 $eventValue->setData($data)->setEventName($eventName);

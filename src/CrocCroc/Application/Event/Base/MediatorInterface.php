@@ -21,18 +21,20 @@ interface MediatorInterface {
      *
      * @param string $eventName
      * @param callable $callBack
+     * @param int $priority
      * @return $this
      */
-    public function on(string $eventName  , callable $callBack);
+    public function on(string $eventName  , callable $callBack , int $priority = 0);
 
     /**
      * attach any callable to an event just one time
      *
      * @param string $eventName
      * @param callable $callBack
+     * @param int $priority
      * @return $this
      */
-    public function once(string $eventName  , callable $callBack);
+    public function once(string $eventName  , callable $callBack , int $priority = 0);
 
     /**
      * send an event
