@@ -61,4 +61,10 @@ class RegistryTest extends \PhpunitTestCase
         $this->assertSame($expected , $this->getInaccessiblePropertyValue('data'));
 
     }
+
+    public function testGet() {
+
+
+
+    }
 }

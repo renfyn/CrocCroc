@@ -7,8 +7,6 @@
 
 namespace CrocCroc\Registry;
 
-use CrocCroc\Application\Injector\Service\ServiceInterface;
-use CrocCroc\Application\Injector\Service\ServiceTrait;
 use CrocCroc\Registry\Base\RegistryInterface;
 
 class Registry implements RegistryInterface
