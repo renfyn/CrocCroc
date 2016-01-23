@@ -141,14 +141,7 @@ class ContainerTest extends \PhpunitTestCase
         $this->assertFalse(array_key_exists($className , $storedInstance));
     }
 
-    public function testSetGetFactory() {
 
-        $fixtureFactory = function() {};
-
-        $this->assertSame($this->instance , $this->instance->setFactory($fixtureFactory));
-        $this->assertSame($fixtureFactory , $this->instance->getFactory());
-
-    }
 
     public function HasDataProvider() {
 

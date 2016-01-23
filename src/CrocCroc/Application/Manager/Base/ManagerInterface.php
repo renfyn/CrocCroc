@@ -6,9 +6,7 @@
  * Time: 06:09
  */
 
-namespace CrocCroc\Application\Manager;
-
-use CrocCroc\Application\Config\Base\ConfigInterface;
+namespace CrocCroc\Application\Manager\Base;
 
 interface ManagerInterface
 {
@@ -17,12 +15,10 @@ interface ManagerInterface
      * @return $this
      */
     public function setConfigClassName(string $className);
-
     /**
-     * @param ConfigInterface $config
      * @return $this
      */
-    public function setConfig(ConfigInterface $config);
+    public function setConfig();
 
     /**
      * @return $this

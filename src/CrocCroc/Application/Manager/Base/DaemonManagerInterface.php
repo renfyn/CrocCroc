@@ -6,7 +6,7 @@
  * Time: 06:09
  */
 
-namespace CrocCroc\Application\Manager;
+namespace CrocCroc\Application\Manager\Base;
 
 interface DeamonManagerInterface extends ManagerInterface
 {

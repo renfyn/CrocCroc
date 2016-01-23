@@ -7,13 +7,14 @@
  */
 
 namespace CrocCroc\Application\Injector\Base;
+use CrocCroc\Application\Injector\Factory\FactoryInterface;
 use Interop\Container\ContainerInterface as PsrContainerInterface;
 
 /**
  * Interface InjectorInterface
  * @package CrocCroc\Injector\Base
  */
-interface ContainerInterface extends PsrContainerInterface {
+interface ContainerInterface extends PsrContainerInterface , FactoryInterface {
 
     /**
      *

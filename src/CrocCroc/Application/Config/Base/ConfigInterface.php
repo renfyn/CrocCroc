@@ -6,7 +6,7 @@
  * Time: 08:44
  */
 
-namespace CrocCroc\Config\Base;
+namespace CrocCroc\Application\Config\Base;
 
 interface ConfigInterface {
 

@@ -6,10 +6,10 @@
  * Time: 07:53
  */
 
-namespace CrocCroc\Application\Factory;
+namespace CrocCroc\Application\Injector\Factory;
 
 /**
- * Interface FactoryInterface
+ * Interface FactoryTrait
  */
 interface FactoryInterface {
 

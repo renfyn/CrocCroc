@@ -11,12 +11,15 @@ namespace CrocCroc\Application\Injector;
 use CrocCroc\Application\Injector\Base\ContainerInterface;
 use CrocCroc\Application\Injector\Exception\ContainerException;
 use CrocCroc\Application\Injector\Exception\NotFoundException;
+use CrocCroc\Application\Injector\Factory\FactoryTrait;
 
 /**
  * Class Container
  * @package CrocCroc\Injector
  */
-final class Container implements ContainerInterface {
+class Container implements ContainerInterface {
+
+    use FactoryTrait;
 
     /**
      *
@@ -35,31 +38,6 @@ final class Container implements ContainerInterface {
      * @var array
      */
     protected $aliases = [];
-
-    /**
-     * any callable
-     * @var Callable
-     */
-    protected $factory;
-
-    /**
-     * return factory callable
-     * @return Callable
-     */
-    public function getFactory():Callable
-    {
-        return $this->factory;
-    }
-
-    /**
-     * @param Callable $factory
-     * @return $this
-     */
-    public function setFactory(Callable $factory)
-    {
-        $this->factory = $factory;
-        return $this;
-    }
 
     /**
      * Return aliases list

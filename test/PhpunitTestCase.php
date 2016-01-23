@@ -98,7 +98,7 @@ class PhpunitTestCase extends \PHPUnit_Framework_TestCase
 
     protected function setMockInjector($className , $classMock) {
 
-        $mock = $this->getMock('CrocCroc\Application\Injector\Base\ContainerInterface' , ['get' , 'has', 'unStoredNextObject']);
+        $mock = $this->getMock('CrocCroc\Application\Injector\Container' , ['get' , 'has', 'unStoredNextObject']);
 
         $mock->expects($this->once())
                     ->method('get')
