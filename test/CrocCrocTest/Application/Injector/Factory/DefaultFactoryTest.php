@@ -28,54 +28,40 @@ class DefaultFactoryTest extends \PhpunitTestCase
 
     public function invokeDataProvider() {
 
-
-
-        $mockService   = $this->getMock('\CrocCroc\Application\Injector\Service\ServiceInterface' , ['getInjector' , 'setInjector' , 'delegateConstructor']);
-
-
-
         return
             [
-                ['\stdClass' , null ,  false , false],
-                //[get_class($mockService) , $mockService , false , true],
-                ['\unknownClass' , null, true , false],
+                ['\stdClass'  ,  false , false],
+                ['\CrocCroc\Application\Event\Mediator'  , false , true],
+                ['\unknownClass' , true , false],
             ];
 
     }
 
     /**
      * @param string $className
-     * @param \PHPUnit_Framework_MockObject_MockObject $mock
      * @param bool $exceptionExpected
      * @param bool $containerInjection
      * @dataProvider invokeDataProvider
      */
-    public function testInvoke(string $className,  $mock  , bool $exceptionExpected , bool $containerInjection) {
+    public function testInvoke(string $className  , bool $exceptionExpected , bool $containerInjection) {
 
         $mockContainer = $this->getMock('CrocCroc\Application\Injector\Container' , ['get' , 'has', 'unStoredNextObject']);
 
         $factory = ($this->instance);
 
-        if($containerInjection) {
-            /**
-             * @var \PHPUnit_Framework_MockObject_MockObject $mock
-             */
 
-            $mock->expects($this->once())
-                ->method('setInjector')
-                ->with($mockContainer)
-                ->willReturn($mock);
-
-            $mock->expects($this->once())
-                ->method('delegateConstructor')
-                ->willReturn(true);
-        }
 
         if($exceptionExpected) {
             $this->setExpectedException('\CrocCroc\Application\Injector\Exception\NotFoundException');
         }
 
-        $this->assertInstanceOf($className , $factory($className , $mockContainer));
+        $class = $factory($className , $mockContainer);
+
+        $this->assertInstanceOf($className , $class);
+
+        if($containerInjection) {
+            $this->assertSame($mockContainer , $class->getInjector());
+        }
     }
 
 }
