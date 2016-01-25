@@ -2,12 +2,12 @@
     "name": "renfyn/CrocCroc",
     "type": "library",
     "description": "CrocCroc Core Application",
-    "keywords": [],
+    "keywords": ["php 7.0" , "framework" , "crocroc", "psr-7" , "container interop" , "middleware"],
     "license": "GNU V3",
     "authors": [
         {
             "name": "Christophe GARCIA",
-            "email": "chris94400@gmail.com",
+            "email": "crocophp@gmail.com",
             "homepage": "http://php-christophe-garcia.com"
         }
     ],
