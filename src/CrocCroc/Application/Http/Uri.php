@@ -181,11 +181,36 @@ class Uri implements UriInterface
     }
 
     /**
+     * verify if host is a valid domain name without check dns entries.
+     *
+     * @param $host
+     * @return bool
+     */
+    protected function isValidDomainName($host) {
+        return (preg_match("/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $host) //valid chars check
+            && preg_match("/^.{1,253}$/", $host) //overall length check
+            && preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $host)   ); //length of each label
+    }
+
+    /**
      * @inheritDoc
      */
     public function withHost($host)
     {
-        // TODO: Implement withHost() method.
+        if($this->isValidDomainName($host) || filter_var($host , FILTER_VALIDATE_IP)) {
+
+            if($host !== $this->host) {
+
+                $instance = clone $this;
+                $instance->host = $host;
+                return $instance;
+            } else {
+                return $this;
+            }
+
+        }
+
+        throw new \InvalidArgumentException(' invalid host ' . $host);
     }
 
     /**

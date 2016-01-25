@@ -224,4 +224,59 @@ class UriTest extends \PhpunitTestCase
 
     }
 
+    public function hostProvider() {
+        return
+            [
+                ['a'                        , null           , true   ,  false ],
+                ['0'                        , null           , true   ,  false ],
+                ['a.b'                      , null           , true   ,  false ],
+                ['localhost'                , null           , true   ,  false ],
+                ['google.com'               , null           , true   ,  false ],
+                ['news.google.co.uk'        , null           , true   ,  false ],
+                ['xn--fsqu00a.xn--0zwm56d'  , null           , true   ,  false ],
+                ['goo gle.com'              , null           , true   ,  true  ],
+                ['google..com'              , null           , true   ,  true  ],
+                ['google.com '              , null           , true   ,  true  ],
+                ['google-.com'              , null           , true   ,  true  ],
+                ['.google.com'              , null           , true   ,  true  ],
+                ['<script'                  , null           , true   ,  true  ],
+                ['alert('                   , null           , true   ,  true  ],
+                ['.'                        , null           , true   ,  true  ],
+                [''                         , null           , true   ,  true  ],
+                [''                         , null           , true   ,  true  ],
+                ['-'                        , null           , true   ,  true  ],
+                ['55.25.0.12'               , null           , true   ,  false ],
+                ['55.25.0=12'               , null           , true   ,  true  ],
+                ['croccroc.com'             , 'croccroc.com' , false  ,  false ],
+            ];
+    }
+
+    /**
+     * @param string $host
+     * @param string $originalHost
+     * @param bool $expectNewInstance
+     * @param bool $expectException
+     * @dataProvider hostProvider
+     */
+    public function testWithHost(string $host , string $originalHost = null, bool $expectNewInstance, bool $expectException) {
+
+        $this->setInaccessiblePropertyValue('host', $originalHost);
+
+        if($expectException) {
+            $this->setExpectedException('\InvalidArgumentException');
+        }
+
+        $instance = $this->instance->withHost($host);
+
+        if($expectNewInstance) {
+            $this->assertInstanceOf(get_class($this->instance) , $instance);
+            $this->assertNotSame($instance , $this->instance);
+            $this->assertSame($originalHost , $this->instance->getHost());
+        } else {
+            $this->assertSame($this->instance , $instance);
+        }
+        $this->assertSame($host , $instance->getHost());
+
+    }
+
 }
