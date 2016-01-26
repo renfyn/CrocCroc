@@ -279,4 +279,43 @@ class UriTest extends \PhpunitTestCase
 
     }
 
+    public function withPortProvider()   {
+        return
+        [
+            [80     , 8080          , true  , false ],
+            [80     , 'toto'        , false , true  ],
+            [80     , 10000000001   , false , true  ],
+            [8080   , 8080          , false , false ],
+            [null   , 8080          , true  , false ],
+        ];
+    }
+
+    /**
+     * @param int $originalPort
+     * @param $newPort
+     * @param bool $expectNewInstance
+     * @param bool $expectException
+     * @dataProvider withPortProvider
+     */
+    public function testWithPort(int $originalPort = null  , $newPort , bool $expectNewInstance, bool $expectException) {
+
+        $this->setInaccessiblePropertyValue('port', $originalPort);
+
+        if($expectException) {
+            $this->setExpectedException('\InvalidArgumentException');
+        }
+
+        $instance = $this->instance->withPort($newPort);
+
+        if($expectNewInstance) {
+            $this->assertInstanceOf(get_class($this->instance) , $instance);
+            $this->assertNotSame($instance , $this->instance);
+            $this->assertSame($originalPort , $this->getInaccessiblePropertyValue('port'));
+        } else {
+            $this->assertSame($this->instance , $instance);
+        }
+        $this->assertSame($newPort , $instance->getPort());
+
+    }
+
 }

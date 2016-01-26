@@ -218,7 +218,23 @@ class Uri implements UriInterface
      */
     public function withPort($port)
     {
-        // TODO: Implement withPort() method.
+        $portRegEx = '^(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{1,3}|[0-9])$';
+
+        if(is_int($port) &&  preg_match('/' . $portRegEx . '/i' , $port)) {
+
+            if($port !== $this->port) {
+
+                $instance = clone $this;
+                $instance->port = $port;
+                return $instance;
+            } else {
+                return $this;
+            }
+
+        }
+
+
+        throw new \InvalidArgumentException(' invalid port ' . $port);
     }
 
     /**
