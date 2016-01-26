@@ -42,12 +42,12 @@ class Uri implements UriInterface
     /**
      * @var string
      */
-    protected $userName;
+    protected $user;
 
     /**
      * @var string
      */
-    protected $userPass;
+    protected $pass;
 
     /**
      * @var string
@@ -63,6 +63,36 @@ class Uri implements UriInterface
      * @var string
      */
     protected $fragment;
+
+    /**
+     * Uri constructor.
+     *
+     * @param string $uriString
+     */
+    public function __construct(string $uriString = null) {
+
+
+        if(is_null($uriString)) {
+            return;
+        }
+        if(filter_var($uriString , FILTER_VALIDATE_URL)) {
+
+            $params = parse_url($uriString);
+
+            foreach($params as $property => $value) {
+                if($property === 'query') {
+                    parse_str($value , $this->$property );
+                } else {
+                    $this->$property = $value;
+                }
+            }
+
+            return;
+        }
+
+        throw new \InvalidArgumentException(' invalid uri : ' . $uriString);
+
+    }
 
     /**
      * @inheritDoc
@@ -95,13 +125,13 @@ class Uri implements UriInterface
      */
     public function getUserInfo()
     {
-        if(empty($this->userName) && empty($this->userPass)) {
+        if(empty($this->user) && empty($this->pass)) {
             return '';
         }
-        $userInfo = $this->userName;
+        $userInfo = $this->user;
 
-        if(!empty($this->userPass)) {
-            $userInfo .= ':' . $this->userPass;
+        if(!empty($this->pass)) {
+            $userInfo .= ':' . $this->pass;
         }
         return $userInfo;
     }
@@ -171,10 +201,10 @@ class Uri implements UriInterface
      */
     public function withUserInfo($user, $password = null)
     {
-        if(($this->userPass !== $password) || ($this->userName !== $user)) {
+        if(($this->pass !== $password) || ($this->user !== $user)) {
             $clone = clone $this;
-            $clone->userName = $user;
-            $clone->userPass = $password;
+            $clone->user = $user;
+            $clone->pass = $password;
             return $clone;
         }
         return $this;
@@ -242,7 +272,21 @@ class Uri implements UriInterface
      */
     public function withPath($path)
     {
-        // TODO: Implement withPath() method.
+        if(is_string($path) &&  preg_match('/^\//i' , $path)) {
+
+            if($path !== $this->path) {
+
+                $instance = clone $this;
+                $instance->path = $path;
+                return $instance;
+            } else {
+                return $this;
+            }
+
+        }
+
+
+        throw new \InvalidArgumentException(' invalid path ' . $path . 'it must be a string and be absolute');
     }
 
     /**
@@ -250,7 +294,22 @@ class Uri implements UriInterface
      */
     public function withQuery($query)
     {
-        // TODO: Implement withQuery() method.
+        $pattern = "^([a-zA-Z0-9&\*\%\=\|])*$";
+        if(is_string($query) &&  preg_match('/' . $pattern . '/i' , $query)) {
+
+            if($query !== http_build_query($this->query, '', '&' , PHP_QUERY_RFC3986)) {
+
+                $instance = clone $this;
+                parse_str($query , $instance->query );
+                return $instance;
+            } else {
+                return $this;
+            }
+
+        }
+
+
+        throw new \InvalidArgumentException(' invalid query ' . $query . 'it must be url encoded see RFC-3986');
     }
 
     /**
@@ -258,7 +317,14 @@ class Uri implements UriInterface
      */
     public function withFragment($fragment)
     {
-        // TODO: Implement withFragment() method.
+        if($fragment !== $this->fragment) {
+
+            $instance = clone $this;
+            $instance->fragment = $fragment;
+            return $instance;
+        } else {
+            return $this;
+        }
     }
 
     /**
@@ -266,7 +332,35 @@ class Uri implements UriInterface
      */
     public function __toString()
     {
-        // TODO: Implement __toString() method.
+        $uri = '';
+
+        if(!empty($this->getScheme())) {
+
+            $uri .= $this->getScheme() . ':';
+        }
+        $uri .= '//';
+        if(!empty($this->getUserInfo())) {
+            $uri .= $this->getUserInfo() . '@';
+        }
+
+        $uri .= $this->getHost();
+
+        if(!empty($this->getPort()) && $this->getPort() !== 80) {
+            $uri .= ':' . $this->getPort();
+        }
+
+        $uri .= $this->getPath();
+
+        if(!empty($this->getQuery())) {
+            $uri .= '?' . $this->getQuery();
+        }
+
+        if(!empty($this->getFragment())) {
+            $uri .= '#' . $this->getFragment();
+        }
+
+        return $uri;
+
     }
 
 
