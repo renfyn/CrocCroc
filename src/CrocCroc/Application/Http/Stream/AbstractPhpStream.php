@@ -19,11 +19,6 @@ abstract class AbstractPhpStream implements StreamInterface
 
     protected $mode = 'r+';
     /**
-     * parts of the response
-     * @var array
-     */
-    protected $parts = [];
-    /**
      * @var bool
      */
     protected $isWritable;
@@ -131,7 +126,11 @@ abstract class AbstractPhpStream implements StreamInterface
      */
     public function seek($offset, $whence = SEEK_SET)
     {
-        if(!fseek($this->resource , $offset, $whence)) {
+        try {
+            if(fseek($this->resource , $offset, $whence) === 0) {
+                throw new \RuntimeException('unable to seek this stream');
+            }
+        } catch(\Exception $e) {
             throw new \RuntimeException('unable to seek this stream');
         }
     }
@@ -141,7 +140,13 @@ abstract class AbstractPhpStream implements StreamInterface
      */
     public function rewind()
     {
-        // TODO: Implement rewind() method.
+        try {
+            if(rewind($this->resource)) {
+                throw new \RuntimeException('unable to rewind this stream');
+            }
+        } catch(\Exception $e) {
+            throw new \RuntimeException('unable to rewind this stream');
+        }
     }
 
     /**
@@ -157,7 +162,12 @@ abstract class AbstractPhpStream implements StreamInterface
      */
     public function write($string)
     {
-        // TODO: Implement write() method.
+        if($this->isWritable) {
+            $len = fwrite($this->resource , $string);
+            return  $len;
+        }
+        throw new \RuntimeException('unable to write this stream');
+
     }
 
     /**
@@ -173,7 +183,14 @@ abstract class AbstractPhpStream implements StreamInterface
      */
     public function read($length)
     {
-        // TODO: Implement read() method.
+        if($this->isReadable) {
+            try {
+                return fread($this->resource, $length);
+            } catch(\Exception $e) {
+                throw new \RuntimeException('unable to read this stream : ' . $e->getMessage());
+            }
+        }
+        throw new \RuntimeException('unable to read this stream');
     }
 
     /**
@@ -181,7 +198,14 @@ abstract class AbstractPhpStream implements StreamInterface
      */
     public function getContents()
     {
-        // TODO: Implement getContents() method.
+        if($this->isReadable) {
+            try {
+                return stream_get_contents($this->resource , -1 , 0);
+            } catch(\Exception $e) {
+                throw new \RuntimeException('unable to read this stream : ' . $e->getMessage());
+            }
+        }
+        throw new \RuntimeException('unable to read this stream');
     }
 
     /**
@@ -189,7 +213,16 @@ abstract class AbstractPhpStream implements StreamInterface
      */
     public function getMetadata($key = null)
     {
-        // TODO: Implement getMetadata() method.
+        $metadata = stream_get_meta_data($this->resource);
+
+        if(is_null($key)) {
+            return $metadata;
+        }
+        if(array_key_exists($key , $metadata)) {
+            return $metadata[$key];
+        }
+
+        return null;
     }
 
 

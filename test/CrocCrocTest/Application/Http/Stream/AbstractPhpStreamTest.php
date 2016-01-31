@@ -117,23 +117,197 @@ class AbstractPhpStreamTest extends \PhpunitTestCase
     public function seekProvider() {
 
         return [
-           [1 , SEEK_SET, false,],
-           ['toto' , SEEK_CUR , true],
+           [1 , SEEK_SET , true],
+           [0 , SEEK_END , true],
         ];
 
     }
 
+    /**
+     * @dataProvider seekProvider
+     * @param $offset
+     * @param $mode
+     * @param $exceptionExpected
+     */
     public function testSeek($offset , $mode , $exceptionExpected) {
 
         if($exceptionExpected) {
             $this->setExpectedException('\RuntimeException');
+            $fp = fopen('php://temp' , 'a+');
+            $this->setInaccessiblePropertyValue('resource' , $fp);
+        } else {
+            $fp = fopen('php://memory' , 'c');
+            $this->setInaccessiblePropertyValue('resource' , $fp);
         }
 
         $fixtureTest = 'Lorem ipsum dolor sit amet';
         $fp = $this->getInaccessiblePropertyValue('resource');
         fputs($fp , $fixtureTest);
+        fseek($fp , $offset , $mode);
 
-        $this->assertSame(fseek($fp , $offset , $mode) , $this->instance->eof());
+        $this->instance->seek($offset , $mode);
+
+        $this->assertSame( $fp, $this->getInaccessiblePropertyValue('resource'));
 
     }
+
+
+    public function testRewind() {
+
+
+        $this->setExpectedException('\RuntimeException');
+        $fp = fopen('php://temp' , 'a+');
+        $this->setInaccessiblePropertyValue('resource' , $fp);
+
+        $fixtureTest = 'Lorem ipsum dolor sit amet';
+        $fp = $this->getInaccessiblePropertyValue('resource');
+        fputs($fp , $fixtureTest);
+        rewind($fp);
+
+        $this->instance->rewind();
+
+        $this->assertSame( $fp, $this->getInaccessiblePropertyValue('resource'));
+
+    }
+
+    public function testIsWritable()
+    {
+        $fixtureWritable = true;
+
+        $this->setInaccessiblePropertyValue('isWritable' , $fixtureWritable);
+
+        $this->assertTrue($this->instance->isWritable());
+    }
+
+    public function writeProvider() {
+        return
+            [
+                ['test' , true , false],
+                ['test' , false, true],
+            ];
+    }
+
+    /**
+     * @param string $string
+     * @param bool $isWritable
+     * @param bool $exceptionExpected
+     * @dataProvider writeProvider
+     */
+    public function testWrite(string $string ,bool $isWritable , bool $exceptionExpected) {
+
+        $this->setInaccessiblePropertyValue('isWritable' , $isWritable);
+
+        if($exceptionExpected) {
+            $this->setExpectedException('\RuntimeException');
+        }
+
+        $this->assertSame(strlen($string) , $this->instance->write($string));
+
+        $fp = $this->getInaccessiblePropertyValue('resource');
+
+        $this->assertSame($string ,  stream_get_contents($fp , -1 , 0));
+
+    }
+
+    public function testIsReadable()
+    {
+        $fixtureReadable = true;
+
+        $this->setInaccessiblePropertyValue('isReadable' , $fixtureReadable);
+
+        $this->assertTrue($this->instance->isReadable());
+    }
+
+    public function readProvider() {
+        return
+            [
+                ['test test test' , 5  , 'test '      , true  , false],
+                ['test test'      , 4  , 'test'       , true  , false],
+                ['test test '     , -1 , 'test test ' , true  , true],
+                ['test test'      , 4  , 'test '      , false , true],
+            ];
+    }
+
+    /**
+     * @param string $string
+     * @param int $length
+     * @param string $expected
+     * @param bool $isReadable
+     * @param bool $exceptionExpected
+     * @dataProvider readProvider
+     */
+    public function testRead(string $string ,int $length , string $expected  ,bool $isReadable , bool $exceptionExpected) {
+
+        $this->setInaccessiblePropertyValue('isReadable' , $isReadable);
+        $fp = $this->getInaccessiblePropertyValue('resource');
+        fputs($fp , $string);
+        fseek($fp , 0);
+
+        $this->setInaccessiblePropertyValue('resource' , $fp);
+
+        if($exceptionExpected) {
+            $this->setExpectedException('\RuntimeException');
+        }
+
+        $this->assertSame($expected , $this->instance->read($length));
+
+    }
+
+    public function getContentsProvider() {
+
+        return
+        [
+            ['test' , true  , false],
+            ['test' , false , true],
+            [ null  , false , true],
+
+        ];
+
+    }
+
+    /**
+     * @dataProvider getContentsProvider
+     * @param $contents
+     * @param bool $isReadable
+     * @param bool $exceptionExpected
+     */
+    public function testGetContents($contents , bool $isReadable , bool $exceptionExpected ) {
+
+        if($exceptionExpected) {
+            $this->setExpectedException('\RuntimeException');
+        }
+
+        $this->setInaccessiblePropertyValue('isReadable' , $isReadable);
+        $fp = $this->getInaccessiblePropertyValue('resource');
+        fputs($fp , $contents);
+
+        $this->assertSame($contents , $this->instance->getContents());
+    }
+
+    public function getMetadataProvider() {
+
+        return
+            [
+                ['uri'   , 'php://memory'],
+                [ null   , 'all'],
+                [ 'toto' , null],
+            ];
+    }
+
+    /**
+     * @param $key
+     * @param $expected
+     * @dataProvider getMetadataProvider
+     */
+    public function testGetMetadata($key , $expected) {
+
+        if($expected === 'all') {
+            $fp = $this->getInaccessiblePropertyValue('resource');
+            $expected = stream_get_meta_data($fp);
+        }
+
+        $this->assertSame($expected , $this->instance->getMetadata($key));
+
+    }
+
 }
