@@ -127,11 +127,11 @@ abstract class AbstractPhpStream implements StreamInterface
     public function seek($offset, $whence = SEEK_SET)
     {
         try {
-            if(fseek($this->resource , $offset, $whence) === 0) {
+            if(!fseek($this->resource , $offset, $whence) === 0) {
                 throw new \RuntimeException('unable to seek this stream');
             }
         } catch(\Exception $e) {
-            throw new \RuntimeException('unable to seek this stream');
+            throw new \RuntimeException('unable to seek this stream ' . $e->getMessage());
         }
     }
 
@@ -141,7 +141,7 @@ abstract class AbstractPhpStream implements StreamInterface
     public function rewind()
     {
         try {
-            if(rewind($this->resource)) {
+            if(!rewind($this->resource)) {
                 throw new \RuntimeException('unable to rewind this stream');
             }
         } catch(\Exception $e) {

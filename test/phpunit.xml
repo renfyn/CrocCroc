@@ -15,7 +15,6 @@
          stopOnIncomplete="true"
          stopOnSkipped="false"
          testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader"
-         strict="true"
          verbose="true">
     <testsuites>
         <testsuite name="CrocoCore">
@@ -24,13 +23,11 @@
     </testsuites>
     <logging>
         <log type="coverage-html" target="build/reports/phpunit/coverage" charset="UTF-8"/>
-        <log type="coverage-clover" target="build/reports/phpunit/clover.xml" charset="UTF-8"/>
-        <log type="junit" target="build/reports/phpunit/junit.xml" logIncompleteSkipped="false"
-             charset="UTF-8"/>
+        <log type="coverage-text" target="build/reports/phpunit/coverage.txt" charset="UTF-8"/>
     </logging>
     <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">..src/CrocCroc</directory>
+        <whitelist processUncoveredFilesFromWhitelist="true" >
+            <directory suffix=".php">src/CrocCroc</directory>
         </whitelist>
     </filter>
 </phpunit>

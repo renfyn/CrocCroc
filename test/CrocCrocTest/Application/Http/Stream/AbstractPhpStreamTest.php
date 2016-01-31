@@ -8,6 +8,8 @@
 
 namespace CrocCrocTest\Application\Http\Stream;
 
+use org\bovigo\vfs\vfsStream;
+
 class AbstractPhpStreamTest extends \PhpunitTestCase
 {
     /**
@@ -117,8 +119,8 @@ class AbstractPhpStreamTest extends \PhpunitTestCase
     public function seekProvider() {
 
         return [
-           [1 , SEEK_SET , true],
-           [0 , SEEK_END , true],
+           [1 , SEEK_SET , false],
+           [-1 , SEEK_CUR , true],
         ];
 
     }
@@ -133,36 +135,73 @@ class AbstractPhpStreamTest extends \PhpunitTestCase
 
         if($exceptionExpected) {
             $this->setExpectedException('\RuntimeException');
-            $fp = fopen('php://temp' , 'a+');
-            $this->setInaccessiblePropertyValue('resource' , $fp);
+            $this->setInaccessiblePropertyValue('resource' , null);
         } else {
-            $fp = fopen('php://memory' , 'c');
+            vfsStream::setup('/var' , 0777);
+            $uri = vfsStream::url('var/file.txt');
+            $fp = fopen($uri , 'a+');
             $this->setInaccessiblePropertyValue('resource' , $fp);
+            $fixtureTest = 'Lorem ipsum dolor sit amet';
+            $fp = $this->getInaccessiblePropertyValue('resource');
+            fputs($fp , $fixtureTest);
+            fseek($fp , $offset , $mode);
         }
 
-        $fixtureTest = 'Lorem ipsum dolor sit amet';
-        $fp = $this->getInaccessiblePropertyValue('resource');
-        fputs($fp , $fixtureTest);
-        fseek($fp , $offset , $mode);
 
-        $this->instance->seek($offset , $mode);
+
+       $this->instance->seek($offset , $mode);
 
         $this->assertSame( $fp, $this->getInaccessiblePropertyValue('resource'));
 
     }
 
 
-    public function testRewind() {
+    public function testSeekEnable() {
 
+        vfsStream::setup('var' , 0777);
+        $url    = vfsStream::url('var/test.txt' );
 
-        $this->setExpectedException('\RuntimeException');
-        $fp = fopen('php://temp' , 'a+');
+        $fp     = fopen($url , 'w');
+        fwrite($fp , 'test test test test test');
         $this->setInaccessiblePropertyValue('resource' , $fp);
+        $this->setInaccessiblePropertyValue('isSeekable' , true);
+        $this->instance->seek(10);
 
-        $fixtureTest = 'Lorem ipsum dolor sit amet';
-        $fp = $this->getInaccessiblePropertyValue('resource');
-        fputs($fp , $fixtureTest);
-        rewind($fp);
+        $this->assertSame( $fp, $this->getInaccessiblePropertyValue('resource'));
+
+    }
+
+    public function rewindProvider() {
+
+        return [
+            [false],
+            [true],
+        ];
+
+    }
+
+    /**
+     * @dataProvider rewindProvider
+     * @param $offset
+     * @param $mode
+     * @param $exceptionExpected
+     */
+    public function testRewind($exceptionExpected) {
+
+        if($exceptionExpected) {
+            $this->setExpectedException('\RuntimeException');
+            $this->setInaccessiblePropertyValue('resource' , null);
+        } else {
+            vfsStream::setup('/var' , 0777);
+            $uri = vfsStream::url('var/file.txt');
+            $fp = fopen($uri , 'a+');
+            $this->setInaccessiblePropertyValue('resource' , $fp);
+            $fixtureTest = 'Lorem ipsum dolor sit amet';
+            $fp = $this->getInaccessiblePropertyValue('resource');
+            fputs($fp , $fixtureTest);
+            rewind($fp);
+        }
+
 
         $this->instance->rewind();
 
@@ -194,6 +233,7 @@ class AbstractPhpStreamTest extends \PhpunitTestCase
      * @dataProvider writeProvider
      */
     public function testWrite(string $string ,bool $isWritable , bool $exceptionExpected) {
+
 
         $this->setInaccessiblePropertyValue('isWritable' , $isWritable);
 
@@ -277,11 +317,27 @@ class AbstractPhpStreamTest extends \PhpunitTestCase
             $this->setExpectedException('\RuntimeException');
         }
 
-        $this->setInaccessiblePropertyValue('isReadable' , $isReadable);
         $fp = $this->getInaccessiblePropertyValue('resource');
         fputs($fp , $contents);
 
+
+        $this->setInaccessiblePropertyValue('isReadable' , $isReadable);
+
         $this->assertSame($contents , $this->instance->getContents());
+    }
+
+    /**
+
+     */
+    public function testFailedGetContents() {
+
+
+        $this->setExpectedException('\RuntimeException');
+        $this->setInaccessiblePropertyValue('isReadable' , true);
+
+        $this->setInaccessiblePropertyValue('resource' , null);
+
+        $this->instance->getContents();
     }
 
     public function getMetadataProvider() {
