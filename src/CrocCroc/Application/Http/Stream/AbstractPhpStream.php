@@ -10,14 +10,52 @@ namespace CrocCroc\Application\Http\Stream;
 
 use Psr\Http\Message\StreamInterface;
 
-abstract class AbstractPartsStream implements StreamInterface
+abstract class AbstractPhpStream implements StreamInterface
 {
+    /**
+     * @var string
+     */
+    protected $streamName = 'memory';
 
+    protected $mode = 'r+';
+    /**
+     * parts of the response
+     * @var array
+     */
     protected $parts = [];
+    /**
+     * @var bool
+     */
+    protected $isWritable;
+    /**
+     * @var bool
+     */
+    protected $isReadable;
+    /**
+     * @var bool
+     */
+    protected $isSeekable;
 
-    protected $isWritable = false;
+    /**
+     * @var resource
+     */
+    protected $resource;
 
-    protected $isReadable = false;
+    /**
+     * AbstractPhpStream constructor.
+     */
+    public function __construct()
+    {
+        $fileName  = 'php://' . $this->streamName;
+
+        $this->resource   = fopen( $fileName , $this->mode);
+
+        $meta = stream_get_meta_data($this->resource );
+
+        $this->isSeekable = $meta['seekable'];
+        $this->isReadable = is_readable($fileName);
+        $this->isWritable = is_writable($fileName);
+    }
 
     /**
      * @inheritDoc
@@ -25,7 +63,7 @@ abstract class AbstractPartsStream implements StreamInterface
     public function __toString()
     {
         if($this->isReadable) {
-            return implode('\n' , $this->parts);
+            return stream_get_contents($this->resource , -1 , 0);
         }
         return '';
     }
@@ -35,7 +73,7 @@ abstract class AbstractPartsStream implements StreamInterface
      */
     public function close()
     {
-        // TODO: Implement close() method.
+        fclose($this->resource);
     }
 
     /**
@@ -43,7 +81,9 @@ abstract class AbstractPartsStream implements StreamInterface
      */
     public function detach()
     {
-        // TODO: Implement detach() method.
+        $stream = $this->resource;
+        $this->resource = null;
+        return $stream;
     }
 
     /**
@@ -51,7 +91,15 @@ abstract class AbstractPartsStream implements StreamInterface
      */
     public function getSize()
     {
-        // TODO: Implement getSize() method.
+
+        if(!is_resource($this->resource)) {
+            return null;
+        }
+
+        $stats = fstat($this->resource);
+        return $stats['size'];
+
+
     }
 
     /**
@@ -59,7 +107,7 @@ abstract class AbstractPartsStream implements StreamInterface
      */
     public function tell()
     {
-        // TODO: Implement tell() method.
+        return ftell($this->resource);
     }
 
     /**
@@ -67,7 +115,7 @@ abstract class AbstractPartsStream implements StreamInterface
      */
     public function eof()
     {
-        // TODO: Implement eof() method.
+        return feof($this->resource);
     }
 
     /**
@@ -75,7 +123,7 @@ abstract class AbstractPartsStream implements StreamInterface
      */
     public function isSeekable()
     {
-        // TODO: Implement isSeekable() method.
+        return $this->isSeekable;
     }
 
     /**
@@ -83,7 +131,9 @@ abstract class AbstractPartsStream implements StreamInterface
      */
     public function seek($offset, $whence = SEEK_SET)
     {
-        // TODO: Implement seek() method.
+        if(!fseek($this->resource , $offset, $whence)) {
+            throw new \RuntimeException('unable to seek this stream');
+        }
     }
 
     /**
@@ -99,7 +149,7 @@ abstract class AbstractPartsStream implements StreamInterface
      */
     public function isWritable()
     {
-        // TODO: Implement isWritable() method.
+        return $this->isWritable;
     }
 
     /**
@@ -115,7 +165,7 @@ abstract class AbstractPartsStream implements StreamInterface
      */
     public function isReadable()
     {
-        // TODO: Implement isReadable() method.
+        return $this->isReadable;
     }
 
     /**
