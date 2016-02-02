@@ -12,12 +12,38 @@ use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 
 abstract class AbstractMessage implements MessageInterface{
+
+    /**
+     * list  of supported http versions
+     * @var array
+     */
+    protected $supportedProtocolVersion =
+        [
+            '0.9',
+            '1.0',
+            '1.1',
+            '2',
+        ];
+    /**
+     * @var string
+     */
+    protected $protocolVersion;
+
+    /**
+     * associative array of all headers
+     * @var array
+     */
+    protected $headers = [];
+    /**
+     * @var StreamInterface
+     */
+    protected $body;
     /**
      * @inheritDoc
      */
     public function getProtocolVersion()
     {
-        // TODO: Implement getProtocolVersion() method.
+        return $this->protocolVersion;
     }
 
     /**
@@ -25,7 +51,19 @@ abstract class AbstractMessage implements MessageInterface{
      */
     public function withProtocolVersion($version)
     {
-        // TODO: Implement withProtocolVersion() method.
+        if(!in_array($version , $this->supportedProtocolVersion)) {
+            throw new \InvalidArgumentException('unsupported http version ' . $version . ' use ' . implode(' or ' , $this->supportedProtocolVersion));
+        }
+
+        if($version !== $this->protocolVersion) {
+
+            $newInstance = clone $this;
+            $newInstance->protocolVersion = $version;
+            return $newInstance;
+
+        }
+
+        return $this;
     }
 
     /**
@@ -33,7 +71,7 @@ abstract class AbstractMessage implements MessageInterface{
      */
     public function getHeaders()
     {
-        // TODO: Implement getHeaders() method.
+        return $this->headers;
     }
 
     /**
@@ -41,7 +79,7 @@ abstract class AbstractMessage implements MessageInterface{
      */
     public function hasHeader($name)
     {
-        // TODO: Implement hasHeader() method.
+        return array_key_exists($name , $this->headers);
     }
 
     /**
@@ -49,7 +87,13 @@ abstract class AbstractMessage implements MessageInterface{
      */
     public function getHeader($name)
     {
-        // TODO: Implement getHeader() method.
+        $headerValue = [];
+        if(array_key_exists($name , $this->headers)) {
+
+            $headerValue = explode(', ' , $this->headers[$name]);
+
+        }
+        return $headerValue;
     }
 
     /**
@@ -57,7 +101,13 @@ abstract class AbstractMessage implements MessageInterface{
      */
     public function getHeaderLine($name)
     {
-        // TODO: Implement getHeaderLine() method.
+        $headerValue = '';
+        if(array_key_exists($name , $this->headers)) {
+
+            $headerValue = $this->headers[$name];
+
+        }
+        return $headerValue;
     }
 
     /**
@@ -89,7 +139,7 @@ abstract class AbstractMessage implements MessageInterface{
      */
     public function getBody()
     {
-        // TODO: Implement getBody() method.
+        return $this->body;
     }
 
     /**
@@ -97,7 +147,9 @@ abstract class AbstractMessage implements MessageInterface{
      */
     public function withBody(StreamInterface $body)
     {
-        // TODO: Implement withBody() method.
+        $new = clone $this;
+        $new->body = $body;
+        return $new;
     }
 
 
