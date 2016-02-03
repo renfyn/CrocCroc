@@ -8,7 +8,6 @@
 
 namespace CrocCrocTest\Application\Http\Message;
 
-
 use CrocCroc\Application\Http\Message\AbstractMessage;
 
 class AbstractMessageTest extends \PhpunitTestCase
@@ -128,6 +127,122 @@ class AbstractMessageTest extends \PhpunitTestCase
         $this->assertSame($newBody , $instance->getBody());
 
         $this->assertNotEquals($this->instance->getBody() , $instance->getBody());
+    }
+
+    public function testWithoutHeader() {
+
+        $fixtureExpected =
+            [
+                'Host' => 'example.com',
+                'Referer' => 'http://example.com/',
+                'User-Agent' => 'CERN-LineMode/2.15 libwww/2.17b3',
+            ];
+
+        $fixtureHeaders =
+            [
+                'Host' => 'example.com',
+                'Referer' => 'http://example.com/',
+                'User-Agent' => 'CERN-LineMode/2.15 libwww/2.17b3',
+                'Accept-Encoding' => 'gzip;q=1.0, identity; q=0.5, *;q=0',
+            ];
+
+        $this->setInaccessiblePropertyValue('headers' , $fixtureHeaders);
+
+        $fixtureName = 'Accept-Encoding';
+
+        $instance = $this->instance->withoutHeader($fixtureName);
+
+        $this->assertInstanceOf(get_class($this->instance) , $instance);
+        $this->assertNotEquals($instance , $this->instance);
+
+        $this->assertSame($fixtureExpected , $instance->getHeaders());
+
+    }
+
+    public function testWithHeader() {
+
+        $fixtureExpected =
+            [
+                'Host' => 'example.com',
+                'Referer' => 'http://example.com/',
+                'User-Agent' => 'CERN-LineMode/2.15 libwww/2.17b3',
+                'Accept-Encoding' => 'gzip;q=1.0, identity; q=0.5, *;q=0',
+            ];
+
+        $fixtureHeaders =
+            [
+                'Host' => 'example.com',
+                'Referer' => 'http://example.com/',
+                'User-Agent' => 'CERN-LineMode/2.15 libwww/2.17b3',
+
+            ];
+
+        $this->setInaccessiblePropertyValue('headers' , $fixtureHeaders);
+
+        $fixtureName = 'Accept-Encoding';
+        $fixtureValue = 'gzip;q=1.0, identity; q=0.5, *;q=0';
+
+        $instance = $this->instance->withHeader($fixtureName , $fixtureValue);
+
+        $this->assertInstanceOf(get_class($this->instance) , $instance);
+        $this->assertNotEquals($instance , $this->instance);
+
+        $this->assertSame($fixtureExpected , $instance->getHeaders());
+
+    }
+
+    public function withAddedHeaderProvider() {
+
+        $fixtureExpected =
+            [
+                'Host' => 'example.com',
+                'Referer' => 'http://example.com/',
+                'User-Agent' => 'CERN-LineMode/2.15 libwww/2.17b3',
+                'Accept-Encoding' => 'gzip;q=1.0, identity; q=0.5, *;q=0',
+            ];
+
+        $fixtureHeaders =
+            [
+                'Host' => 'example.com',
+                'Referer' => 'http://example.com/',
+                'User-Agent' => 'CERN-LineMode/2.15 libwww/2.17b3',
+
+            ];
+
+        $fixtureExpectedAdd =
+            [
+                'Host' => 'example.com',
+                'Referer' => 'http://example.com/',
+                'User-Agent' => 'CERN-LineMode/2.15 libwww/2.17b3',
+                'Accept-Encoding' => 'gzip;q=1.0, identity; q=0.5, *;q=0, q=0',
+            ];
+
+        return [
+            [$fixtureHeaders  , 'Accept-Encoding' , 'gzip;q=1.0, identity; q=0.5, *;q=0' , $fixtureExpected],
+            [$fixtureExpected , 'Accept-Encoding' , 'q=0' , $fixtureExpectedAdd],
+
+        ];
+
+    }
+
+    /**
+     * @param array $originalHeaders
+     * @param string $name
+     * @param string $value
+     * @param array $expectedHeaders
+     * @dataProvider withAddedHeaderProvider
+     */
+    public function testWithAddedHeader(array $originalHeaders ,string $name ,string  $value ,array $expectedHeaders) {
+
+        $this->setInaccessiblePropertyValue('headers' , $originalHeaders);
+
+        $instance = $this->instance->withAddedHeader($name , $value);
+
+        $this->assertInstanceOf(get_class($this->instance) , $instance);
+        $this->assertNotEquals($instance , $this->instance);
+
+        $this->assertSame($expectedHeaders , $instance->getHeaders());
+
     }
 
 }

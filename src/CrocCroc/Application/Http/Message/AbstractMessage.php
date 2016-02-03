@@ -115,7 +115,13 @@ abstract class AbstractMessage implements MessageInterface{
      */
     public function withHeader($name, $value)
     {
-        // TODO: Implement withHeader() method.
+        $headers = $this->headers;
+
+        $headers[$name] = $value;
+
+        $instance = clone $this;
+        $instance->headers = $headers;
+        return $instance;
     }
 
     /**
@@ -123,7 +129,18 @@ abstract class AbstractMessage implements MessageInterface{
      */
     public function withAddedHeader($name, $value)
     {
-        // TODO: Implement withAddedHeader() method.
+
+        $headers = $this->headers;
+
+        if(array_key_exists($name , $headers)) {
+            $headers[$name] .= ', ' .  $value;
+        } else {
+            $headers[$name] = $value;
+        }
+
+        $instance = clone $this;
+        $instance->headers = $headers;
+        return $instance;
     }
 
     /**
@@ -131,7 +148,14 @@ abstract class AbstractMessage implements MessageInterface{
      */
     public function withoutHeader($name)
     {
-        // TODO: Implement withoutHeader() method.
+        $headers = $this->headers;
+        if(array_key_exists($name , $headers)) {
+            unset($headers[$name]);
+        }
+        $instance = clone $this;
+        $instance->headers = $headers;
+        return $instance;
+
     }
 
     /**
